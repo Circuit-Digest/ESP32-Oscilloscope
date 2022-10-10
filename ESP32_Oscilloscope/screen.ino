@@ -178,7 +178,7 @@ void draw_sprite(float freq,
     spr.drawRect(shift, 0, 70, 30, TFT_WHITE);
     spr.drawString("P-P: " + String(max_v - min_v) + "V",  shift + 5, 5);
     spr.drawString(frequency,  shift + 5, 15);
-    String offset_line = String((2.0 * v_div) / 1000.0 - offset) + "V";
+    String offset_line = String((3.0 * v_div) / 1000.0 - offset) + "V";
     spr.drawString(offset_line,  shift + 40, 59);
 
     if (set_value) {
@@ -200,7 +200,7 @@ void draw_sprite(float freq,
     spr.drawString(frequency,  shift + 15, 15);
     spr.drawString(String(int(v_div)) + "mV/div",  shift - 100, 5);
     spr.drawString(String(int(s_div)) + "uS/div",  shift - 100, 15);
-    String offset_line = String((2.0 * v_div) / 1000.0 - offset) + "V";
+    String offset_line = String((3.0 * v_div) / 1000.0 - offset) + "V";
     spr.drawString(offset_line,  shift + 100, 112);
   }
 
