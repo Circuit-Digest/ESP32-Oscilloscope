@@ -8,14 +8,14 @@
 #include "filters.h"
 
 //#define DEBUG_SERIAL
-//#define DEBUG_BUFF
+//#define DEBUG_BUF
 #define DELAY 1000
 
 // Width and height of sprite
 #define WIDTH  240
 #define HEIGHT 280
 
-#define ADC_CHANNEL   ADC1_CHANNEL_5  // GPIO33
+#define ADC_CHANNEL   ADC1_CHANNEL_3  // GPIO39
 #define NUM_SAMPLES   1000            // number of samples
 #define I2S_NUM         (0)
 #define BUFF_SIZE 50000
@@ -36,7 +36,7 @@ esp_adc_cal_characteristics_t adc_chars;
 TaskHandle_t task_menu;
 TaskHandle_t task_adc;
 
-float v_div = 825;
+float v_div = 550;
 float s_div = 10;
 float offset = 0;
 float toffset = 0;
@@ -54,7 +54,7 @@ enum Option {
   Stop,
   Mode,
   Single,
-  Clear,
+  Rate,
   Reset,
   Probe,
   UpdateF,
@@ -63,6 +63,7 @@ enum Option {
 };
 
 int8_t volts_index = 0;
+int8_t rate_index=0;
 
 int8_t tscale_index = 0;
 
@@ -83,6 +84,7 @@ bool stop = false;
 bool stop_change = false;
 
 uint16_t i2s_buff[BUFF_SIZE];
+//uint16_t *i2s_buff;
 
 bool single_trigger = false;
 bool data_trigger = false;
@@ -90,7 +92,7 @@ bool data_trigger = false;
 bool updating_screen = false;
 bool new_data = false;
 bool menu_action = false;
-uint8_t digital_wave_option = 0; //0-auto | 1-analog | 2-digital data (SERIAL/SPI/I2C/etc)
+uint8_t digital_wave_option = 1; //0-auto | 1-analog | 2-digital data (SERIAL/SPI/I2C/etc)
 int btnok,btnpl,btnmn,btnbk;
 void IRAM_ATTR btok()
 {
@@ -111,7 +113,7 @@ void IRAM_ATTR btback()
 void setup() {
   Serial.begin(115200);
 
-  configure_i2s(1000000);
+  configure_i2s(RATE*1000);
 
   setup_screen();
 
@@ -128,6 +130,7 @@ void setup() {
 #ifdef DEBUG_BUF
   debug_buffer();
 #endif
+
 
   xTaskCreatePinnedToCore(
     core0_task,
@@ -177,7 +180,11 @@ void core1_task( void * pvParameters ) {
   (void) pvParameters;
 
   for (;;) {
+    if (RATE<700) {set_sample_rate((RATE*1000)/2);}
+    else set_sample_rate((RATE*1000));
+    
     if (!single_trigger) {
+      
       while (updating_screen) {
         vTaskDelay(pdMS_TO_TICKS(1));
       }
@@ -197,6 +204,7 @@ void core1_task( void * pvParameters ) {
         }
       }
       Serial.println("CORE1");
+      //Serial.print(i2s_buff[1],DEC);
       vTaskDelay(pdMS_TO_TICKS(300));
     }
     else {

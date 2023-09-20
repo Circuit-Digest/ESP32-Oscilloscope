@@ -7,12 +7,19 @@ int voltage_division[6] = { //screen has 4 divisions, 31 pixels each (125 pixels
   50
 };
 
+int rate_division[5] = { 
+  1000,
+  750, 
+  500,
+  200,
+  70
+};
 
-/*each sample represents 1us (1Msps),
-   thus, the time division is the number
-   of samples per screen division
+/*каждая выборка представляет собой 1us (1 мбит/с),
+таким образом, деление по времени - это количество
+выборок на одно деление экрана
 */
-float time_division[9] = { //screen has 4 divisions, 60 pixel each (240 pixel of width)
+float time_division[13] = { //экран имеет 4 деления по 60 пикселей каждое (ширина 240 пикселей).
   10,
   25,
   50,
@@ -21,14 +28,12 @@ float time_division[9] = { //screen has 4 divisions, 60 pixel each (240 pixel of
   500,
   1000,
   2500,
-  5000
+  5000,   //1Mhz    35ms of data (of 50ms possible)
+  10000,  //100khz  70ms/500ms
+  25000,  //100khz  175ms/500ms of data
+  50000,  //100khz  350ms/500ms of data
+  100000  //50khz   700ms/1000ms of data
 };
-//,   //1Mhz    35ms of data (of 50ms possible)
-//  10000,  //100khz  70ms/500ms
-//  25000,  //100khz  175ms/500ms of data
-//  50000,  //100khz  350ms/500ms of data
-//  100000  //50khz   700ms/1000ms of data
-//};
 
 void menu_handler() {
   button();
@@ -112,6 +117,25 @@ void button() {
 
           break;
 
+        case Rate:
+          if (btnpl == 1) {
+            rate_index++;
+            if (rate_index >= sizeof(rate_division) / sizeof(*rate_division)) {
+              rate_index = 0;
+            }
+            btnpl = 0;
+          }
+          else if (btnmn == 1) {
+            rate_index--;
+            if (rate_index < 0) {
+              rate_index = sizeof(rate_division) / sizeof(*rate_division) - 1;
+            }
+            btnmn = 0;
+          }
+
+          RATE = rate_division[rate_index];
+          break;
+
         default:
           break;
 
@@ -127,7 +151,7 @@ void button() {
       if (btnpl == 1)
       {
         opt++;
-        if (opt > Single)
+        if (opt > Rate)
         {
           opt = 1;
         }
@@ -140,7 +164,7 @@ void button() {
         opt--;
         if (opt < 1)
         {
-          opt = 9;
+          opt = 10;
         }
         Serial.print("option : ");
         Serial.println(opt);
@@ -207,6 +231,10 @@ void button() {
             current_filter++;
             if (current_filter > 3)
               current_filter = 0;
+            break;
+
+          case Rate:
+            set_value = true;
             break;
 
           default:
