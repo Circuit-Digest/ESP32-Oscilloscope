@@ -1,10 +1,13 @@
 # [ESP32-Oscilloscope](https://circuitdigest.com/microcontroller-projects/diy-esp32-oscilloscope)
 
+<a href="https://circuitdigest.com/microcontroller-projects/diy-esp32-oscilloscope">
 <img src="https://github.com/Circuit-Digest/ESP32-Oscilloscope/blob/04b6fece60edaf153e6bdef8e16c109be43cfa42/images/IMG_0308.png" width="" alt="alt_text" title="image_tooltip">
+</a>
+
 <br>
 
 <br>
-<a href="https://circuitdigest.com/tags/ESP32"><img src="https://img.shields.io/static/v1?label=&labelColor=505050&message=ESP32 Tutorials Circuit Digest&color=%230076D6&style=social&logo=google-chrome&logoColor=%230076D6" alt="circuitdigest"/></a>
+<a href="https://circuitdigest.com/esp32-projects"><img src="https://img.shields.io/static/v1?label=&labelColor=505050&message=ESP32 Tutorials Circuit Digest&color=%230076D6&style=social&logo=google-chrome&logoColor=%230076D6" alt="circuitdigest"/></a>
 <br>
 
 [<h1>Click here](https://circuitdigest.com/tags/ESP32) For other ESP32 tutorials.</h1>
