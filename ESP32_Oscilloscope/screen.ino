@@ -14,30 +14,14 @@ void setup_screen() {
 
 int data[280] = {0};
 
+
 float to_scale(float reading) {
-  float temp = WIDTH -
-               (
-                 (
-                   (
-                     (float)((reading - 20480.0) / 4095.0)
-                     + (offset / 3.3)
-                   )
-                   * 3300 /
-                   (v_div * 6)
-                 )
-               )
-               * (WIDTH - 1)
-               - 1;
-  return temp;
+  float temp = WIDTH - (((ADC_LUT[(int)reading] / 4095.0) + (offset / 3.3)) * 3300 / (v_div * 6)) * (WIDTH - 1) - 1; return temp;
 }
 
-float to_voltage(float reading) {
-  return  (reading - 20480.0) / 4095.0 * 3.3;
-}
+float to_voltage(float reading) { return ADC_LUT[(int)reading] / 4095.0 * 3.3; }
 
-uint32_t from_voltage(float voltage) {
-  return uint32_t(voltage / 3.3 * 4095 + 20480.0);
-}
+uint32_t from_voltage(float voltage) { return ((uint32_t)(voltage / 3.3 * 4095)) ; }
 
 void update_screen(uint16_t *i2s_buff, float sample_rate) {
 
@@ -153,7 +137,7 @@ void draw_sprite(float freq,
   if (menu) {
     spr.drawLine( 0, 120, 280, 120, TFT_WHITE); //center line
     spr.fillRect(shift, 0, 102, 135, TFT_BLACK);
-    spr.drawRect(shift, 0, 102, 135, TFT_WHITE);
+    spr.drawRect(shift, 0, 102, 145, TFT_WHITE);
     spr.fillRect(shift + 1, 3 + 10 * (opt - 1), 100, 11, TFT_RED);
 
     spr.drawString("AUTOSCALE",  shift + 5, 5);
@@ -165,12 +149,13 @@ void draw_sprite(float freq,
     spr.drawString(str_stop, shift + 5, 65);
     spr.drawString(wave_option, shift + 5, 75);
     spr.drawString("Single " + String(single_trigger ? "ON" : "OFF"), shift + 5, 85);
+    spr.drawString("Rate " + String((uint16_t)RATE)  + " kHz", shift + 5, 95);
 
-    spr.drawLine(shift, 103, shift + 100, 103, TFT_WHITE);
+    spr.drawLine(shift, 108, shift + 100, 108, TFT_WHITE);
 
-    spr.drawString("Vmax: " + String(max_v) + "V",  shift + 5, 105);
-    spr.drawString("Vmin: " + String(min_v) + "V",  shift + 5, 115);
-    spr.drawString(s_mean,  shift + 5, 125);
+    spr.drawString("Vmax: " + String(max_v) + "V",  shift + 5, 110);
+    spr.drawString("Vmin: " + String(min_v) + "V",  shift + 5, 120);
+    spr.drawString(s_mean,  shift + 5, 135);
 
     shift -= 70;
 
@@ -178,7 +163,7 @@ void draw_sprite(float freq,
     spr.drawRect(shift, 0, 70, 30, TFT_WHITE);
     spr.drawString("P-P: " + String(max_v - min_v) + "V",  shift + 5, 5);
     spr.drawString(frequency,  shift + 5, 15);
-    String offset_line = String((2.0 * v_div) / 1000.0 - offset) + "V";
+    String offset_line = String((3.0 * v_div) / 1000.0 - offset) + "V";
     spr.drawString(offset_line,  shift + 40, 59);
 
     if (set_value) {
@@ -197,10 +182,11 @@ void draw_sprite(float freq,
     spr.drawLine( 0, 120, 280, 120, TFT_WHITE); //center line
     //spr.drawRect(shift + 10, 0, 280 - shift - 20, 30, TFT_WHITE);
     spr.drawString("P-P: " + String(max_v - min_v) + "V",  shift + 15, 5);
-    spr.drawString(frequency,  shift + 15, 15);
-    spr.drawString(String(int(v_div)) + "mV/div",  shift - 100, 5);
-    spr.drawString(String(int(s_div)) + "uS/div",  shift - 100, 15);
-    String offset_line = String((2.0 * v_div) / 1000.0 - offset) + "V";
+    spr.drawString("Vmax: " + String(max_v) + "V",  shift + 15, 15);
+    spr.drawString(frequency,  shift + 15, 25);
+    spr.drawString(String(int(v_div)) + "mV/div",  shift - 100, 15);
+    spr.drawString(String(int(s_div)) + "uS/div",  shift - 100, 5);
+    String offset_line = String((3.0 * v_div) / 1000.0 - offset) + "V";
     spr.drawString(offset_line,  shift + 100, 112);
   }
 
@@ -234,8 +220,23 @@ void draw_channel1(uint32_t trigger0, uint32_t trigger1, uint16_t *i2s_buff, flo
   mean_filter mfilter(5);
   mfilter.init(i2s_buff[trigger0]);
   filter._value = i2s_buff[trigger0];
-  float data_per_pixel = (s_div / 40.0) / (sample_rate / 1000);
-
+  float data_per_pixel = (s_div / 40.0) / (1000/sample_rate); 
+  
+  //Serial.print(s_div);
+  //Serial.print('/');
+  //Serial.print(sample_rate);
+  //Serial.print('/');
+  //Serial.println(data_per_pixel);
+  
+ 
+    //for (uint32_t i = 0; i < 500; i++) {
+    //for (int j = 0; j < 1; j++) {
+    //  Serial.print(i);
+    //  Serial.print('/');
+    //  Serial.println(i2s_buff[i]);
+    //}
+  //}
+//Serial.println('-----------------------------');
   //  uint32_t cursor = (trigger1-trigger0)/data_per_pixel;
   //  spr.drawLine(cursor, 0, cursor, 135, TFT_RED);
 
@@ -246,6 +247,9 @@ void draw_channel1(uint32_t trigger0, uint32_t trigger1, uint16_t *i2s_buff, flo
   for (uint32_t i = 1; i < 280; i++) {
     uint32_t index = trigger0 + (uint32_t)((i + 1) * data_per_pixel);
     if (index < BUFF_SIZE) {
+      //Serial.print(index);
+      //Serial.print('/');
+      //Serial.println(i2s_buff[index]);
       if (full_pix && s_div > 40 && current_filter == 0) {
         uint32_t max_val = i2s_buff[old_index];
         uint32_t min_val = i2s_buff[old_index];
@@ -257,7 +261,7 @@ void draw_channel1(uint32_t trigger0, uint32_t trigger1, uint16_t *i2s_buff, flo
             min_val = i2s_buff[j];
 
         }
-        spr.drawLine(i, to_scale(min_val), i, to_scale(max_val), TFT_BLUE);
+        spr.drawLine(i, to_scale(min_val), i, to_scale(max_val), TFT_MAGENTA);
       }
       else {
         if (current_filter == 2)
@@ -267,7 +271,8 @@ void draw_channel1(uint32_t trigger0, uint32_t trigger1, uint16_t *i2s_buff, flo
         else
           n_data = to_scale(i2s_buff[index]);
 
-        spr.drawLine(i - 1, o_data, i, n_data, TFT_BLUE);
+        spr.drawLine(i - 1, o_data, i, n_data, TFT_MAGENTA);
+        
         o_data = n_data;
       }
 
