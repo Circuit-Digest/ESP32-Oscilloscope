@@ -1,4 +1,4 @@
-# [ESP32-Oscilloscope](https://circuitdigest.com/microcontroller-projects/diy-esp32-oscilloscope)
+# [DIY-Oscilloscope](https://circuitdigest.com/microcontroller-projects/diy-esp32-oscilloscope)
 
 <a href="https://circuitdigest.com/microcontroller-projects/diy-esp32-oscilloscope">
 <img src="https://github.com/Circuit-Digest/ESP32-Oscilloscope/blob/04b6fece60edaf153e6bdef8e16c109be43cfa42/images/IMG_0308.png" width="" alt="alt_text" title="image_tooltip">
